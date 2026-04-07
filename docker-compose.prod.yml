@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ai_compliance
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: aicompliance_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8085:8085"
+    environment:
+      - DATABASE_URL=postgres://ai_compliance:password123@db:5432/aicompliance_db?sslmode=disable
+      - JWT_SECRET=production_secret_key_change_me
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_BASE=http://localhost:8085/api
+    depends_on:
+      - backend
+
+volumes:
+  postgres_prod_data:
