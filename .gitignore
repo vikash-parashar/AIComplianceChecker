@@ -1,8 +1,8 @@
 node_modules/
 .DS_Store
-.env
 .next/
 *.exe
 *.log
 backend/main
 pgdata/
+config.bat
